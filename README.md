@@ -1,6 +1,4 @@
-# qm9-gnn
-
-Collecting workspace information# QM9-GNN: Molecular Property Prediction with Graph Neural Networks
+# QM9-GNN: Molecular Property Prediction with Graph Neural Networks
 
 A Graph Neural Network implementation for predicting molecular properties on the QM9 dataset. This project uses PyTorch Geometric and PyTorch Lightning to build and train GNN models for quantum chemistry tasks.
 
