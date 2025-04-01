@@ -17,12 +17,6 @@ source .venv/bin/activate
 uv sync
 ```
 
-## Project Structure
-
-- hello.py: Main script containing the model, data processing, and training pipeline
-- data: Directory containing QM9 dataset
-- lightning_logs: Training logs and checkpoints
-
 ## Regression Tasks
 
 The model supports prediction of various molecular properties from the QM9 dataset, including:
