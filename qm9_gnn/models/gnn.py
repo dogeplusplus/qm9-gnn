@@ -6,7 +6,7 @@ from torch_geometric.data import Batch
 
 
 class MolGNN(nn.Module):
-    def __init__(self, in_channels, hidden_channels, out_channels, num_layers):
+    def __init__(self, in_channels: int, hidden_channels: int, out_channels: int, num_layers: int):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels

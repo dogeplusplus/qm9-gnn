@@ -7,7 +7,7 @@ from qm9_gnn.models.gnn import MolGNN
 
 
 class QM9GNN(L.LightningModule):
-    def __init__(self, num_outputs):
+    def __init__(self, num_outputs: int, display_every: int = 100):
         super().__init__()
         self.model = MolGNN(11, 128, num_outputs, 24)
 
@@ -21,12 +21,13 @@ class QM9GNN(L.LightningModule):
             prefix="train_",
         )
         self.valid_metrics = self.train_metrics.clone(prefix="valid_")
+        self.display_every = display_every
 
     def training_step(self, batch, batch_idx):
         pred = self.model(batch)
         loss = F.mse_loss(pred, batch.y)
         self.log_dict(
-            self.train_metrics(pred, batch.y), prog_bar=True, batch_size=len(batch.y)
+            self.train_metrics(pred, batch.y), prog_bar=True, batch_size=len(batch.y),
         )
         return loss
 
@@ -34,7 +35,7 @@ class QM9GNN(L.LightningModule):
         pred = self.model(batch)
         loss = F.mse_loss(pred, batch.y)
         self.log_dict(
-            self.valid_metrics(pred, batch.y), prog_bar=True, batch_size=len(batch.y)
+            self.valid_metrics(pred, batch.y), prog_bar=True, batch_size=len(batch.y),
         )
         return loss
 
