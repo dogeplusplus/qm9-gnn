@@ -18,6 +18,8 @@ class QM9DataModule(L.LightningDataModule):
     ):
         super().__init__()
         self.dataset = QM9(root=data_dir)
+        self.num_classes = self.dataset.num_classes
+        self.num_features = self.dataset.num_features
         self.batch_size = batch_size
         self.test_size = test_size
         self.seed = seed

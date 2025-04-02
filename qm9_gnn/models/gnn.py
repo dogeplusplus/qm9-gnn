@@ -1,12 +1,19 @@
 import torch.nn as nn
 import torch.nn.functional as F
-from torch_geometric.nn import GCNConv, LayerNorm, Linear
+from torch_geometric.nn import LayerNorm, Linear, MessagePassing
 from torch_geometric.utils import scatter
 from torch_geometric.data import Batch
 
 
 class MolGNN(nn.Module):
-    def __init__(self, in_channels: int, hidden_channels: int, out_channels: int, num_layers: int):
+    def __init__(
+        self,
+        in_channels: int,
+        hidden_channels: int,
+        out_channels: int,
+        num_layers: int,
+        mp_layer: MessagePassing,
+    ):
         super().__init__()
         self.in_channels = in_channels
         self.hidden_channels = hidden_channels
@@ -14,7 +21,7 @@ class MolGNN(nn.Module):
         self.num_layers = num_layers
 
         self.layers = nn.ModuleList(
-            GCNConv(
+            mp_layer(
                 self.in_channels if idx == 0 else self.hidden_channels,
                 self.hidden_channels,
             )

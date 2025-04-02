@@ -3,13 +3,22 @@ import torch
 import torch.nn.functional as F
 import torchmetrics
 
+from torch_geometric.nn import MessagePassing
 from qm9_gnn.models.gnn import MolGNN
 
 
 class QM9GNN(L.LightningModule):
-    def __init__(self, num_outputs: int, display_every: int = 100):
+    def __init__(
+        self,
+        in_channels: int,
+        hidden_size: int,
+        out_channels: int,
+        num_layers: int,
+        mp_layer: MessagePassing,
+        display_every: int = 100,
+    ):
         super().__init__()
-        self.model = MolGNN(11, 128, num_outputs, 24)
+        self.model = MolGNN(in_channels, hidden_size, out_channels, num_layers, mp_layer)
 
         self.train_metrics = torchmetrics.MetricCollection(
             {
@@ -27,7 +36,9 @@ class QM9GNN(L.LightningModule):
         pred = self.model(batch)
         loss = F.mse_loss(pred, batch.y)
         self.log_dict(
-            self.train_metrics(pred, batch.y), prog_bar=True, batch_size=len(batch.y),
+            self.train_metrics(pred, batch.y),
+            prog_bar=True,
+            batch_size=len(batch.y),
         )
         return loss
 
@@ -35,7 +46,9 @@ class QM9GNN(L.LightningModule):
         pred = self.model(batch)
         loss = F.mse_loss(pred, batch.y)
         self.log_dict(
-            self.valid_metrics(pred, batch.y), prog_bar=True, batch_size=len(batch.y),
+            self.valid_metrics(pred, batch.y),
+            prog_bar=True,
+            batch_size=len(batch.y),
         )
         return loss
 
