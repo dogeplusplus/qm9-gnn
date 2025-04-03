@@ -63,5 +63,5 @@ class QM9GNN(L.LightningModule):
         return pred
 
     def configure_optimizers(self):
-        self.optimizer = torch.optim.AdamW(self.model.parameters())
-        return self.optimizer
+        optimizer = torch.optim.AdamW(self.model.parameters())
+        return optimizer

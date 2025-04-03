@@ -21,7 +21,7 @@ def main():
     out_channels = data_module.num_classes
     in_channels = data_module.num_features
     hidden_size = 64
-    num_layers = 24
+    num_layers = 48
     mp_layer = partial(ChebConv, K=3)
     model = QM9GNN(
         in_channels=in_channels,
