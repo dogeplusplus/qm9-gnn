@@ -13,7 +13,7 @@ class MolGNN(nn.Module):
         out_channels: int,
         num_layers: int,
         mp_layer: MessagePassing,
-        residual_every: int = 2,
+        residual_every: int = 8,
     ):
         super().__init__()
         self.in_channels = in_channels

@@ -15,6 +15,7 @@ def main():
         tracking_uri="data/mlruns",
         save_dir="data/mlruns",
         log_model=True,
+        checkpoint_path_prefix="qm9_gnn",
     )
     data_module = QM9DataModule(batch_size=512)
 
