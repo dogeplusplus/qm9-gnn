@@ -4,6 +4,7 @@ from typing import Tuple
 
 import lightning as L
 import numpy as np
+import torch
 from rdkit.Chem import rdFingerprintGenerator
 from sklearn.cluster import KMeans
 from torch.utils.data import Dataset
@@ -54,7 +55,7 @@ class QM9DataModule(L.LightningDataModule):
         self,
         data_dir: Path = Path("data"),
         batch_size: int = 32,
-        test_size: float = 0.2,
+        test_ratio: float = 0.2,
         seed: int = 42,
         workers=os.cpu_count() // 2,
     ):
@@ -63,17 +64,18 @@ class QM9DataModule(L.LightningDataModule):
         self.num_classes = self.dataset.num_classes
         self.num_features = self.dataset.num_features
         self.batch_size = batch_size
-        self.test_size = test_size
+        self.test_ratio = test_ratio
         self.seed = seed
         self.workers = workers
 
     def setup(self, stage: str):
         if stage == "fit":
-            self.train_dataset, self.val_dataset = get_train_valid_indicies(
+            test_size = int(self.test_ratio * len(self.dataset))
+            train_size = len(self.dataset) - test_size
+            self.train_dataset, self.val_dataset = torch.utils.data.random_split(
                 self.dataset,
-                self.test_size,
-                self.seed,
-                k=10,
+                [train_size, test_size],
+                generator=torch.Generator().manual_seed(self.seed),
             )
         elif stage == "test":
             self.test_dataset = self.dataset
