@@ -1,6 +1,8 @@
+import hydra
+import importlib
 import lightning as L
+from omegaconf import DictConfig
 from functools import partial
-from torch_geometric.nn import GATConv
 from lightning.pytorch.callbacks import RichProgressBar
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.callbacks import EarlyStopping
@@ -9,35 +11,38 @@ from qm9_gnn.data_loader.qm9 import QM9DataModule
 from qm9_gnn.models.lightning_model import QM9GNN
 
 
-def main():
+@hydra.main(version_base=None, config_path="../qm9_gnn/config", config_name="config")
+def main(cfg: DictConfig):
     data_module = QM9DataModule()
     logger = WandbLogger(
         project="qm9_experiment",
         log_model=True,
     )
-    data_module = QM9DataModule(batch_size=512)
+    data_module = QM9DataModule(batch_size=cfg.batch_size)
 
     out_channels = data_module.num_classes
     in_channels = data_module.num_features
-    hidden_size = 64
-    num_layers = 48
-    mp_layer = partial(GATConv, heads=8, dropout=0.1, concat=True)
+
+    module_name, layer_name = cfg.layer_name.rsplit(".", 1)
+    module = importlib.import_module(module_name)
+    layer = getattr(module, layer_name)
+    mp_layer = partial(layer, **cfg.layer_kwargs)
     model = QM9GNN(
         in_channels=in_channels,
-        hidden_size=hidden_size,
+        hidden_size=cfg.hidden_size,
         out_channels=out_channels,
-        num_layers=num_layers,
+        num_layers=cfg.num_layers,
         mp_layer=mp_layer,
     )
     trainer = L.Trainer(
         strategy="ddp",
         precision=16,
-        max_epochs=50,
+        max_epochs=cfg.epochs,
         callbacks=[
             RichProgressBar(refresh_rate=10),
             EarlyStopping(monitor="valid_mae", patience=3),
         ],
-        accumulate_grad_batches=4,
+        accumulate_grad_batches=cfg.accumulation,
         logger=logger,
         profiler=PyTorchProfiler(
             profiler="simple",
