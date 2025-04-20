@@ -18,6 +18,7 @@ class QM9GNN(L.LightningModule):
         display_every: int = 100,
     ):
         super().__init__()
+        self.save_hyperparameters()
         self.model = MolGNN(in_channels, hidden_size, out_channels, num_layers, mp_layer)
 
         self.train_metrics = torchmetrics.MetricCollection(
