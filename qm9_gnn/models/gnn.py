@@ -46,7 +46,8 @@ class MolGNN(nn.Module):
             if idx % self.residual_every == 0:
                 if residual is not None:
                     x = x + residual
-                residual = x
+                if idx > 2:
+                    residual = x
 
         x = scatter(x, data.batch, dim=0, reduce="mean")
         x = self.linear(x)

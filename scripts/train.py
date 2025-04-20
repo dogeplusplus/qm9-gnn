@@ -1,3 +1,4 @@
+from typing import Callable
 import hydra
 import importlib
 import lightning as L
@@ -11,21 +12,27 @@ from qm9_gnn.data_loader.qm9 import QM9DataModule
 from qm9_gnn.models.lightning_model import QM9GNN
 
 
+def load_layer(layer_path: str) -> Callable:
+    module_name, layer_name = layer_path.rsplit(".", 1)
+    module = importlib.import_module(module_name)
+    layer = getattr(module, layer_name)
+    return layer
+
+
 @hydra.main(version_base=None, config_path="../qm9_gnn/config", config_name="config")
 def main(cfg: DictConfig):
     data_module = QM9DataModule()
     logger = WandbLogger(
         project="qm9_experiment",
-        log_model=True,
+        log_model=False,
+        offline=True,
     )
     data_module = QM9DataModule(batch_size=cfg.batch_size)
 
     out_channels = data_module.num_classes
     in_channels = data_module.num_features
 
-    module_name, layer_name = cfg.layer_name.rsplit(".", 1)
-    module = importlib.import_module(module_name)
-    layer = getattr(module, layer_name)
+    layer = load_layer(cfg.layer_name)
     mp_layer = partial(layer, **cfg.layer_kwargs)
     model = QM9GNN(
         in_channels=in_channels,
