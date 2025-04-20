@@ -1,13 +1,15 @@
-from typing import Callable
-import hydra
 import importlib
-import lightning as L
-from omegaconf import DictConfig
 from functools import partial
-from lightning.pytorch.callbacks import RichProgressBar
+from typing import Callable
+
+import hydra
+import lightning as L
+from lightning.pytorch.callbacks import EarlyStopping, RichProgressBar
 from lightning.pytorch.loggers import WandbLogger
-from lightning.pytorch.callbacks import EarlyStopping
 from lightning.pytorch.profilers import PyTorchProfiler
+from lightning.pytorch.tuner import Tuner
+from omegaconf import DictConfig
+
 from qm9_gnn.data_loader.qm9 import QM9DataModule
 from qm9_gnn.models.lightning_model import QM9GNN
 
@@ -57,6 +59,9 @@ def main(cfg: DictConfig):
             log_graph=True,
         ),
     )
+
+    tuner = Tuner(trainer)
+    tuner.scale_batch_size(model, mode="power", datamodule=data_module)
     trainer.fit(model=model, datamodule=data_module)
 
 

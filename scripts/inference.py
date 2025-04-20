@@ -27,7 +27,7 @@ def molecular_inference(checkpoint_path: Path, output_path: Path):
     data = QM9DataModule()
     trainer = Trainer()
     tuner = Tuner(trainer)
-    tuner.scale_batch_size(model, mode="power")
+    tuner.scale_batch_size(model, mode="power", datamodule=data)
 
     predictions = trainer.predict(model, data)
     predictions = torch.vstack(predictions)

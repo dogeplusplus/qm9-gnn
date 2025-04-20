@@ -60,6 +60,7 @@ class QM9DataModule(L.LightningDataModule):
         workers=os.cpu_count() // 2,
     ):
         super().__init__()
+        self.save_hyperparameters()
         self.dataset = QM9(root=data_dir)
         self.num_classes = self.dataset.num_classes
         self.num_features = self.dataset.num_features
@@ -85,14 +86,14 @@ class QM9DataModule(L.LightningDataModule):
     def train_dataloader(self):
         return DataLoader(
             self.train_dataset,
-            batch_size=self.batch_size,
+            batch_size=self.batch_size | self.hparams.batch_size,
             num_workers=self.workers,
         )
 
     def test_dataloader(self):
         return DataLoader(
             self.test_dataset,
-            batch_size=self.batch_size,
+            batch_size=self.batch_size | self.hparams.batch_size,
             shuffle=False,
             num_workers=self.workers,
         )
