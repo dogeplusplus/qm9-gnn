@@ -101,7 +101,7 @@ class QM9DataModule(L.LightningDataModule):
     def val_dataloader(self):
         return DataLoader(
             self.val_dataset,
-            batch_size=self.batch_size,
+            batch_size=self.batch_size | self.hparams.batch_size,
             shuffle=False,
             num_workers=self.workers,
         )
@@ -109,7 +109,7 @@ class QM9DataModule(L.LightningDataModule):
     def predict_dataloader(self):
         return DataLoader(
             self.predict_dataset,
-            batch_size=self.batch_size,
+            batch_size=self.batch_size | self.hparams.batch_size,
             shuffle=False,
             num_workers=self.workers,
         )
