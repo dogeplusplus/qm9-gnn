@@ -1,3 +1,4 @@
+import torch
 import importlib
 from functools import partial
 from typing import Callable
@@ -25,6 +26,7 @@ def load_layer(layer_path: str) -> Callable:
 def main(cfg: DictConfig):
     data_module = QM9DataModule()
     logger = WandbLogger(
+        save_dir="outputs",
         project="qm9_experiment",
         log_model=False,
         offline=True,
@@ -43,8 +45,8 @@ def main(cfg: DictConfig):
         num_layers=cfg.num_layers,
         mp_layer=mp_layer,
     )
+    model = torch.compile(model)
     trainer = L.Trainer(
-        strategy="ddp",
         precision=16,
         max_epochs=cfg.epochs,
         callbacks=[
@@ -54,8 +56,8 @@ def main(cfg: DictConfig):
         accumulate_grad_batches=cfg.accumulation,
         logger=logger,
         profiler=PyTorchProfiler(
+            dirpath="outputs/profiles",
             profiler="simple",
-            output_filename="profiler_output.txt",
             log_graph=True,
         ),
     )
