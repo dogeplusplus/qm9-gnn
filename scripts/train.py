@@ -5,7 +5,7 @@ from typing import Callable
 
 import hydra
 import lightning as L
-from lightning.pytorch.callbacks import EarlyStopping, RichProgressBar
+from lightning.pytorch.callbacks import EarlyStopping, RichProgressBar, RichModelSummary
 from lightning.pytorch.loggers import WandbLogger
 from lightning.pytorch.profilers import PyTorchProfiler
 from lightning.pytorch.tuner import Tuner
@@ -50,6 +50,7 @@ def main(cfg: DictConfig):
         precision=16,
         max_epochs=cfg.epochs,
         callbacks=[
+            RichModelSummary(),
             RichProgressBar(refresh_rate=10),
             EarlyStopping(monitor="valid_mae", patience=3),
         ],
